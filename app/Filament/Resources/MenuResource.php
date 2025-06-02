@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MenuResource\Pages;
 use App\Filament\Resources\MenuResource\RelationManagers;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\CreateAction;
 use App\Models\Menu;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -33,7 +34,9 @@ class MenuResource extends Resource
                 Forms\Components\TextInput::make('harga')
                     ->required()
                     ->numeric(),
+          
             ]);
+             
     }
 
     public static function table(Table $table): Table
@@ -43,7 +46,8 @@ class MenuResource extends Resource
                 
                   
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('harga')
                     ->numeric()
                     ->sortable(),
