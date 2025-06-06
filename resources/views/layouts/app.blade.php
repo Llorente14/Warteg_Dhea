@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html  class=" bg-gray-100" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
+    {{-- Styles --}}
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Self Order App') }}</title>
 
@@ -12,10 +15,10 @@
     @livewireStyles {{-- Ini penting untuk gaya CSS Livewire --}}
     @stack('styles') {{-- Jika Anda memiliki gaya tambahan yang didorong dari komponen --}}
 </head>
-<body class="bg-gray-900 text-gray-200 antialiased font-sans">
-    {{-- Ini adalah tempat konten dari komponen Livewire SelfOrder Anda akan dirender --}}
-    {{ $slot }}
-
+<body class="h-full">
+        <main>
+                {{ $slot }}
+        </main>
     @livewireScripts {{-- Ini penting untuk fungsionalitas JavaScript Livewire --}}
     @stack('scripts') {{-- Jika Anda memiliki skrip tambahan yang didorong dari komponen --}}
 </body>

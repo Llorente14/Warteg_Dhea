@@ -50,12 +50,21 @@ class Payment extends Component
             ]);
         }
 
-        if ($this->paymentMethod !== 'cash') {
-            $this->showQRCode = true;
-        } else {
+            switch ($this->paymentMethod) {
+        case 'cash':
             session()->forget(['cart', 'total', 'itemNotes', 'orderNotes']);
-            return redirect()->to('/order')->with('success', 'Order placed successfully!');
-        }
+            session()->flash('message', 'Pembayaran Cash berhasil! Pesanan akan segera diproses');
+            return redirect()->to('/order');
+
+        case 'qris':
+            $this->showQRCode = true;
+            session()->flash('message', 'Silahkan scan QR Code untuk melakukan pembayaran QRIS');
+            break;
+
+        case 'bank_transfer':
+            session()->flash('message', 'Silahkan transfer ke rekening: BCA 1234567890 a.n. Warteg Dhea');
+            break;
+    }
     }
 
     public function render()

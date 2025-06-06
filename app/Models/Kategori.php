@@ -13,7 +13,7 @@ class Kategori extends Model
     protected $guarded =[];
 
     public function menu(){
-        return $this->hasMany(Menu::class, 'id');
+        return $this->hasMany(Menu::class, 'category_id');
         
     }
 }

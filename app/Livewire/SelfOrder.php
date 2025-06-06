@@ -9,11 +9,51 @@ class SelfOrder extends Component
 {
     public $cart = [];
     public $total = 0;
+    public $selectedItem = null;
+    public $quantity = 1;
 
     public function mount()
     {
         $this->cart = session('cart', []);
         $this->calculateTotal();
+    }
+
+    public function selectItem($menuId)
+    {
+        $this->selectedItem = $menuId;
+        $this->quantity = 1;
+    }
+
+    public function incrementQty()
+    {
+        $this->quantity++;
+    }
+
+    public function decrementQty()
+    {
+        if ($this->quantity > 1) {
+            $this->quantity--;
+        }
+    }
+
+    public function addToCartWithQty()
+    {
+        if (isset($this->cart[$this->selectedItem])) {
+            $this->cart[$this->selectedItem]['quantity'] += $this->quantity;
+        } else {
+            $menu = Menu::find($this->selectedItem);
+            $this->cart[$this->selectedItem] = [
+                'id' => $menu->id,
+                'name' => $menu->name,
+                'price' => $menu->price,
+                'quantity' => $this->quantity
+            ];
+        }
+        
+        $this->calculateTotal();
+        $this->updateSession();
+        $this->selectedItem = null;
+        $this->quantity = 1;
     }
 
     public function addToCart($menuId)

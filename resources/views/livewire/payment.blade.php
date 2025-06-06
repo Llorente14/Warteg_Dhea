@@ -2,7 +2,7 @@
 <div class="min-h-screen bg-gray-50">
     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div class="bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-2xl font-bold mb-6">Payment</h2>
+            <h2 class="text-2xl font-bold mb-6 text-blue-500">Payment</h2>
 
             <!-- Customer Information -->
             <div class="space-y-4 mb-6">
