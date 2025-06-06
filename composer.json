@@ -9,6 +9,7 @@
         "filament/filament": "3.3",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
+        "livewire/livewire": "^3.6",
         "postare/blade-mdi": "^1.1"
     },
     "require-dev": {

@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Menu;
 use App\Models\Customer;
 
+
 // Import semua komponen Forms dari Filament
 use Filament\Forms\Components\{
     Group,
@@ -27,9 +28,11 @@ use Filament\Tables\{
     Columns\TextColumn,
     Table
 };
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Actions;
 use Filament\Tables;
 
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -229,6 +232,10 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->label('Nomor Pesanan')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('customer.name')
                     ->label('Pelanggan')
                     ->searchable()
@@ -264,12 +271,33 @@ class OrderResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')
+                ->options([
+                    'pending' => 'Pending',
+                    'paid' => 'Paid',
+                    'completed' => 'Completed',
+                    'cancelled' => 'Cancelled',
+                ])
+                ->default('pending'), // Opsional: default filter
             ])
             ->actions([
                 Actions\ViewAction::make(),
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
+                Actions\Action::make('markAsCompleted')
+                    ->label('Tandai Selesai')
+                    ->visible(fn (Order $record): bool => $record->status !== 'completed') // Hanya tampil jika belum selesai
+                    ->action(function (Order $record) {
+                        $record->status = 'completed';
+                        $record->save();
+                        Notification::make()
+                            ->title('Pesanan Selesai')
+                            ->success()
+                            ->send();
+                    })
+                    ->requiresConfirmation()
+                    ->color('success')
+                    ->icon('heroicon-o-check-circle'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
