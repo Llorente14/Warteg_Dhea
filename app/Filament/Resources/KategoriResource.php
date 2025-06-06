@@ -17,16 +17,25 @@ class KategoriResource extends Resource
 {
     protected static ?string $model = Kategori::class;
 
+     //Membuat grouping pada sidebar
+    protected static ?string $navigationGroup = 'Master Data';
+
+    //Agar slug nya tidak menjadi plural
+    protected static ?string $slug = 'kategori';
+    
+    //Untuk mengubah title dari resource
+    protected static ?string $navigationLabel = 'Daftar Kategori';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nama_kategori')
+                Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('deskripsi')
+                Forms\Components\Textarea::make('desc')
                     ->required()
                     ->columnSpanFull(),
             ]);
@@ -36,9 +45,9 @@ class KategoriResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nama_kategori')
+                Tables\Columns\TextColumn::make('name')
                 ->searchable(),
-                Tables\Columns\TextColumn::make('deskripsi'),
+                Tables\Columns\TextColumn::make('desc'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

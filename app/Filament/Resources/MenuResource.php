@@ -22,10 +22,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class MenuResource extends Resource
 {
     protected static ?string $model = Menu::class;
-    protected static ?string $title = 'Daftar Menu Bu';
+    
+    //Membuat grouping pada sidebar
+    protected static ?string $navigationGroup = 'Master Data';
+    
     //Agar slug nya tidak menjadi plural
     protected static ?string $slug = 'menu';
-    protected ?string $heading = 'Daftar Menuk';
+    
     //Untuk mengubah title dari resource
     protected static ?string $navigationLabel = 'Daftar Menu';
     //Untuk mengubah icon dari resource 
@@ -37,16 +40,16 @@ class MenuResource extends Resource
         //Membuat component untuk form input berdasarkan migrationnya
         return $form
             ->schema([
-                //Nanit dibuat menjadi select option kategori name
-                Select::make('kategori_id')
-                    ->relationship(name: 'kategori', titleAttribute: 'nama_kategori')
+                // dibuat menjadi select option kategori name
+                Select::make('category_id')
+                    ->relationship(name: 'category', titleAttribute: 'name')
                    
                     ->native(false),
                 TextInput::make('name')
                     ->required()
                     //maxLength(255) agar maks karakter dalam suatu input "nama" hanya 255 char
                     ->maxLength(255),
-                TextInput::make('harga')
+                TextInput::make('price')
                     ->required()
                     ->numeric(),
           
@@ -65,12 +68,12 @@ class MenuResource extends Resource
                     ->searchable()
                     //Kolom table nama juga jadi dapat di sorting sesuai alphabet/kecil-besar/besar-kecil
                     ->sortable(),
-                TextColumn::make('harga')
+                TextColumn::make('price')
                     //Kolom table harga wajib didisplat dengan type numeric
                     ->numeric()
                     ->sortable(),
                 //Kolom table nama_kategori diambil dari model kategori alias berelasi (One to Many relationship)
-                TextColumn::make('kategori.nama_kategori')
+                TextColumn::make('category.name')
                     //Mengubah label kolom (heading kolom) menjadi Nama Kategori
                     ->label('Nama Kategori'),
                 TextColumn::make('created_at')
@@ -84,7 +87,7 @@ class MenuResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -93,6 +96,8 @@ class MenuResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -117,5 +122,13 @@ class MenuResource extends Resource
     {
         return "Menu Warteg";
     }
-  
+    
+    //Handling soft deletes
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
+    }
 }

@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('menus', function (Blueprint $table) {
+        Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained();
-            $table->string('name')->unique();
-            $table->bigInteger("price");
+            $table->string('name');
+            $table->string("email")->unique();
+            $table->text('address')->nullable();
+            $table->string('phone')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('menus');
+        Schema::dropIfExists('customers');
     }
 };
