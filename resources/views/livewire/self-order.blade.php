@@ -57,6 +57,40 @@
 
     <!-- Main Content -->
     <main class=" md:px-10 lg:px-20">
+        {{-- Responsive option type dine-in or takeaway --}}
+        <div class="p-4"> 
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Pilih Tipe Pesanan:</h2>
+            <div class="flex flex-col md:flex-row gap-3 w-full max-w-md mx-auto bg-gray-100 dark:bg-gray-700 rounded-lg p-2 shadow-inner">
+                <button
+                    type="button"
+                    wire:click="$set('orderType', 'dine-in')" {{-- Mengatur properti Livewire --}}
+                    class="flex-1 px-4 py-2 text-center rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+                           {{-- Kelas dinamis berdasarkan properti orderType --}}
+                           {{ $orderType === 'dine-in' ? 
+                               'bg-blue-600 text-white shadow-md hover:bg-blue-700 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400' : 
+                               'bg-transparent text-gray-700 hover:bg-gray-200 focus:ring-gray-300 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-500' 
+                           }}"
+                >
+                    Dine-in
+                </button>
+                <button
+                    type="button"
+                    wire:click="$set('orderType', 'takeaway')" {{-- Mengatur properti Livewire --}}
+                    class="flex-1 px-4 py-2 text-center rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+                           {{-- Kelas dinamis berdasarkan properti orderType --}}
+                           {{ $orderType === 'takeaway' ? 
+                               'bg-blue-600 text-white shadow-md hover:bg-blue-700 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400' : 
+                               'bg-transparent text-gray-700 hover:bg-gray-200 focus:ring-gray-300 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-500' 
+                           }}"
+                >
+                    Takeaway
+                </button>
+            </div>
+
+            {{-- Input tersembunyi yang terikat ke properti Livewire. Nilai ini akan otomatis terupdate. --}}
+            <input type="hidden" name="type" wire:model="orderType"> 
+        </div>
+
         <!-- Categories and Menu Items -->
         <div class="px-4 py-6 sm:px-0 ">
             @foreach($categories as $category)
@@ -65,7 +99,17 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ">
                         @foreach($category->menu as $menu)
                             <div class="min-w-[140px] max-w-[300px] bg-white shadow-sm rounded-lg overflow-hidden p-1 mb-14 mx-2 lg:mb-10 lg:mx-0">
-                                <img src="/image/Telur_Balado.jpg" alt="{{ $menu->name }}" class="w-full h-[130px] object-cover rounded-sm" />
+                                {{-- Mengubah src gambar agar bisa diakses dari storage --}}
+                                
+                                @if($menu->image)
+                                    {{-- Gunakan helper asset() untuk mendapatkan URL publik gambar --}}
+                                    <img src="{{ asset('storage/' . $menu->image) }}" alt="{{ $menu->name }}" class="w-full h-[130px] object-cover rounded-sm" />
+                                @else
+                                    {{-- Fallback jika gambar tidak ada atau kosong --}}
+                                    <div class="w-full h-[130px] bg-gray-200 rounded-sm flex items-center justify-center text-gray-500 text-sm">
+                                        Tidak Ada Gambar
+                                    </div>
+                                @endif
 
                                 <div class="p-3 flex flex-col justify-between">
                                     <div>

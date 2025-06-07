@@ -11,10 +11,12 @@ use Filament\Resources\Components\Tab;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -52,7 +54,15 @@ class MenuResource extends Resource
                 TextInput::make('price')
                     ->required()
                     ->numeric(),
-          
+                FileUpload::make('image') // Nama kolom di database
+                    ->label('Gambar Menu')
+                    ->image() // Validasi bahwa ini adalah file gambar
+                    ->directory('menu-images') // Folder di dalam storage/app/public
+                    ->visibility('public') // Gambar bisa diakses publik (penting untuk frontend)
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp']) // Tipe file yang diterima
+                    ->maxSize(2048) // Ukuran maksimal 2MB
+                    ->columnSpanFull(), // Agar mengambil lebar penuh
+                   
             ]);
              
     }
@@ -62,41 +72,77 @@ class MenuResource extends Resource
     {
         return $table
             ->columns([
-                //Membuat colum table nama dengan jenis kolom teks
+                // Kolom 'name' dengan fitur pencarian dan pengurutan
                 TextColumn::make('name')
-                    //Kolom table nama jadi dapat di search di searchbar
+                    ->label('Nama Menu') // Label yang lebih jelas
                     ->searchable()
-                    //Kolom table nama juga jadi dapat di sorting sesuai alphabet/kecil-besar/besar-kecil
                     ->sortable(),
+
+                // Kolom 'image' untuk menampilkan gambar menu
+                ImageColumn::make('image')
+                    ->label('Gambar')
+                    ->circular() // Opsional: membuat gambar thumbnail jadi lingkaran
+                    ->size(50) // Opsional: ukuran thumbnail
+                    ->defaultImageUrl(url('/images/placeholder-menu.jpg')), // Gambar placeholder jika tidak ada gambar
+                    // Pastikan Anda sudah mengupload gambar placeholder ini ke public/images/placeholder-menu.jpg
+                    // atau sesuaikan dengan path placeholder dari Tailwind yang Anda gunakan di frontend.
+
+                // Kolom 'price' dengan format angka dan dapat diurutkan
                 TextColumn::make('price')
-                    //Kolom table harga wajib didisplat dengan type numeric
+                    ->label('Harga') // Label yang lebih jelas
                     ->numeric()
-                    ->sortable(),
-                //Kolom table nama_kategori diambil dari model kategori alias berelasi (One to Many relationship)
+                    ->sortable()
+                    ->money('IDR'), // Menampilkan sebagai format mata uang Rupiah
+
+                // Kolom 'category.name' diambil dari relasi (One to Many relationship)
                 TextColumn::make('category.name')
-                    //Mengubah label kolom (heading kolom) menjadi Nama Kategori
-                    ->label('Nama Kategori'),
+                    ->label('Nama Kategori') // Mengubah label kolom (heading kolom)
+                    ->searchable() // Tambahkan searchable untuk kategori
+                    ->sortable(), // Tambahkan sortable untuk kategori
+
+                // Kolom 'created_at' (tanggal pembuatan)
                 TextColumn::make('created_at')
+                    ->label('Tanggal Dibuat') // Label yang lebih jelas
                     ->dateTime()
                     ->sortable()
-                    //Mengubah kolom created_at tiddak ditampilkan diawal jadi harus di centang pada checkbox baru muncul
+                    // Kolom created_at tidak ditampilkan di awal (hidden by default)
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                // Kolom 'updated_at' (tanggal terakhir diperbarui)
                 TextColumn::make('updated_at')
+                    ->label('Terakhir Diperbarui') // Label yang lebih jelas
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                // Filter untuk Trashed (soft deletes)
                 Tables\Filters\TrashedFilter::make(),
+                // Filter berdasarkan kategori (jika ada banyak kategori)
+                Tables\Filters\SelectFilter::make('category_id')
+                    ->label('Filter Kategori')
+                    ->relationship('category', 'name')
+                    ->preload() // Memuat semua opsi kategori di awal
+                    ->searchable(), // Memungkinkan pencarian kategori dalam filter
             ])
             ->actions([
+                // Aksi Edit untuk setiap baris
                 Tables\Actions\EditAction::make(),
+                // Aksi Hapus untuk setiap baris
                 Tables\Actions\DeleteAction::make(),
+                // Tambahkan aksi RestoreAction jika Anda menggunakan soft deletes
+                Tables\Actions\RestoreAction::make(),
+                // Tambahkan aksi ForceDeleteAction jika Anda ingin menghapus permanen
+                Tables\Actions\ForceDeleteAction::make(),
             ])
             ->bulkActions([
+                // Grup Aksi Bulk (untuk beberapa baris sekaligus)
                 Tables\Actions\BulkActionGroup::make([
+                    // Aksi Hapus Bulk
                     Tables\Actions\DeleteBulkAction::make(),
+                    // Aksi Force Delete Bulk
                     Tables\Actions\ForceDeleteBulkAction::make(),
+                    // Aksi Restore Bulk
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);

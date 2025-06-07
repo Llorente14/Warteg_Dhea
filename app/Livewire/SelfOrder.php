@@ -2,20 +2,44 @@
 
 namespace App\Livewire;
 
-use App\Models\Menu;
 use Livewire\Component;
+use App\Models\Menu;
+
+use App\Models\Kategori;
 
 class SelfOrder extends Component
 {
+    public $orderType = 'dine-in';
     public $cart = [];
     public $total = 0;
     public $selectedItem = null;
     public $quantity = 1;
 
+    /**
+     * Metode mount() dijalankan saat komponen Livewire diinisialisasi.
+     * Memuat data keranjang, total, dan tipe pesanan dari session.
+     */
     public function mount()
     {
         $this->cart = session('cart', []);
-        $this->calculateTotal();
+        $this->total = session('total', 0);
+        $this->orderType = session('order_type', 'dine-in'); 
+        
+        // <<< PENTING: Panggil updateSession() setelah mount untuk memastikan
+        // status awal (termasuk orderType dari session) selalu disimpan kembali
+        // ke session jika ada perubahan yang terjadi sebelum interaksi lain.
+        $this->updateSession(); 
+    }
+
+    /**
+     * Hook Livewire yang dipanggil otomatis saat properti $orderType berubah.
+     * Ini akan memastikan orderType selalu disimpan ke session.
+     */
+    public function updatedOrderType($value)
+    {
+        $this->updateSession(); // Panggil metode untuk menyimpan state ke session
+        // Opsional: Anda bisa menambahkan flash message di sini jika ingin notifikasi real-time
+        // session()->flash('message', 'Tipe pesanan diubah menjadi: ' . ($value === 'dine-in' ? 'Dine-in' : 'Takeaway'));
     }
 
     public function selectItem($menuId)
@@ -42,36 +66,24 @@ class SelfOrder extends Component
             $this->cart[$this->selectedItem]['quantity'] += $this->quantity;
         } else {
             $menu = Menu::find($this->selectedItem);
-            $this->cart[$this->selectedItem] = [
-                'id' => $menu->id,
-                'name' => $menu->name,
-                'price' => $menu->price,
-                'quantity' => $this->quantity
-            ];
+            if ($menu) {
+                $this->cart[$this->selectedItem] = [
+                    'id' => $menu->id,
+                    'name' => $menu->name,
+                    'price' => $menu->price,
+                    'quantity' => $this->quantity
+                ];
+            } else {
+                session()->flash('message', 'Item tidak ditemukan.');
+                return;
+            }
         }
         
         $this->calculateTotal();
         $this->updateSession();
         $this->selectedItem = null;
         $this->quantity = 1;
-    }
-
-    public function addToCart($menuId)
-    {
-        if (isset($this->cart[$menuId])) {
-            $this->cart[$menuId]['quantity']++;
-        } else {
-            $menu = Menu::find($menuId);
-            $this->cart[$menuId] = [
-                'id' => $menu->id,
-                'name' => $menu->name,
-                'price' => $menu->price,
-                'quantity' => 1
-            ];
-        }
-        
-        $this->calculateTotal();
-        $this->updateSession();
+        session()->flash('message', 'Item berhasil ditambahkan ke keranjang!');
     }
 
     public function removeFromCart($menuId)
@@ -86,6 +98,7 @@ class SelfOrder extends Component
         
         $this->calculateTotal();
         $this->updateSession();
+        session()->flash('message', 'Item berhasil diperbarui di keranjang!');
     }
 
     public function calculateTotal()
@@ -97,7 +110,11 @@ class SelfOrder extends Component
 
     private function updateSession()
     {
-        session(['cart' => $this->cart, 'total' => $this->total]);
+        session([
+            'cart' => $this->cart,
+            'total' => $this->total,
+            'order_type' => $this->orderType // Ini akan selalu menyimpan orderType terbaru
+        ]);
     }
 
     public function viewCart()
@@ -108,7 +125,7 @@ class SelfOrder extends Component
     public function render()
     {
         return view('livewire.self-order', [
-            'categories' => \App\Models\Kategori::with('menu')->get()
+            'categories' => Kategori::with('menu')->get()
         ]);
     }
 }
