@@ -125,7 +125,9 @@ class SelfOrder extends Component
     public function render()
     {
         return view('livewire.self-order', [
-            'categories' => Kategori::with('menu')->get()
+            'categories' => Kategori::with(['menu' => function($query) {
+                $query->where('is_available', true);
+            }])->get()
         ]);
     }
 }
