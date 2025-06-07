@@ -21,9 +21,10 @@ class DatabaseSeeder extends Seeder
             'password' => '12345678'
         ]);
 
-         $this->call([
-        KategoriSeeder::class,
-        MenuSeeder::class,
-    ]);
+        $this->call([
+            KategoriSeeder::class,
+            MenuSeeder::class,
+            StockSeeder::class,
+        ]);
     }
 }

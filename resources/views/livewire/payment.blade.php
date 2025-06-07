@@ -37,17 +37,29 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
                 <div class="space-y-2">
                     <label class="flex items-center">
-                        <input type="radio" wire:model="paymentMethod" value="cash" class="text-blue-600 focus:ring-blue-500">
-                        <span class="ml-2">Cash</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="radio" wire:model="paymentMethod" value="qris" class="text-blue-600 focus:ring-blue-500">
-                        <span class="ml-2">QRIS</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="radio" wire:model="paymentMethod" value="bank_transfer" class="text-blue-600 focus:ring-blue-500">
-                        <span class="ml-2">Bank Transfer</span>
-                    </label>
+            <input type="radio" 
+                   name="paymentMethod" 
+                   wire:model="paymentMethod" 
+                   value="cash" 
+                   class="text-blue-600 focus:ring-blue-500">
+            <span class="ml-2">Cash</span>
+        </label>
+        <label class="flex items-center">
+            <input type="radio" 
+                   name="paymentMethod" 
+                   wire:model="paymentMethod" 
+                   value="qris" 
+                   class="text-blue-600 focus:ring-blue-500">
+            <span class="ml-2">QRIS</span>
+        </label>
+        <label class="flex items-center">
+            <input type="radio" 
+                   name="paymentMethod" 
+                   wire:model="paymentMethod" 
+                   value="bank_transfer" 
+                   class="text-blue-600 focus:ring-blue-500">
+            <span class="ml-2">Bank Transfer</span>
+        </label>
                 </div>
             </div>
 
@@ -71,7 +83,7 @@
             <!-- Submit Button -->
             <button
                 wire:click="processPayment"
-                class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition"
+                class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition cursor-pointer"
             >
                 Complete Order
             </button>

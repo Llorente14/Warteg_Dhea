@@ -22,12 +22,17 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    // Relasi ke menu dilakukan melalui orderItems().
     // Relasi ke OrderItem (ini yang akan digunakan oleh Filament Repeater)
     public function items()
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    // PENTING: Jangan ada fungsi 'menu()' dengan belongsToMany di sini.
-    // Relasi ke menu dilakukan melalui orderItems().
+      public function stockUsages()
+    {
+        return $this->hasMany(StockUsage::class);
+    }
+   
+    
 }

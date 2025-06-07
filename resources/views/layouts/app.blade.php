@@ -20,6 +20,14 @@
                 {{ $slot }}
         </main>
     @livewireScripts {{-- Ini penting untuk fungsionalitas JavaScript Livewire --}}
+     <script>
+        document.addEventListener('livewire:load', () => {
+            Livewire.on('failed', (message) => {
+                console.error('Livewire Error:', message)
+            })
+        })
+    </script>
+    <script src="//unpkg.com/alpinejs" defer></script>
     @stack('scripts') {{-- Jika Anda memiliki skrip tambahan yang didorong dari komponen --}}
 </body>
 </html>

@@ -10,6 +10,10 @@ class ViewOrder extends Component
     public $total = 0;
     public $notes = '';
     public $itemNotes = [];
+    protected $queryString = [];
+    protected $listeners = ['refreshComponent' => '$refresh'];
+    // Add property to prevent duplicate requests
+    public $isProcessing = false;
 
     public function mount()
     {
@@ -17,6 +21,52 @@ class ViewOrder extends Component
         $this->cart = session('cart', []);
         $this->total = session('total', 0);
         $this->itemNotes = session('itemNotes', []);
+    }
+
+ 
+
+    // Optimize increment with debouncing
+    public function incrementQuantity($menuId)
+    {
+        if ($this->isProcessing) return;
+        $this->isProcessing = true;
+
+        try {
+            if (isset($this->cart[$menuId])) {
+                $this->cart[$menuId]['quantity']++;
+                $this->updateCart();
+            }
+        } finally {
+            $this->isProcessing = false;
+        }
+    }
+
+    // Optimize decrement with debouncing
+    public function decrementQuantity($menuId)
+    {
+        if ($this->isProcessing) return;
+        $this->isProcessing = true;
+
+        try {
+            if (isset($this->cart[$menuId]) && $this->cart[$menuId]['quantity'] > 1) {
+                $this->cart[$menuId]['quantity']--;
+                $this->updateCart();
+            }
+        } finally {
+            $this->isProcessing = false;
+        }
+    }
+
+    // Optimize cart updates
+    private function updateCart()
+    {
+        $this->total = collect($this->cart)
+            ->sum(fn($item) => $item['price'] * $item['quantity']);
+        
+        session()->put([
+            'cart' => $this->cart,
+            'total' => $this->total
+        ]);
     }
 
     public function addNote($menuId, $note)

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\OrderExporter;
 use Filament\Resources\Resource;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Order;
@@ -32,7 +33,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Actions;
 use Filament\Tables;
 
+use Filament\Tables\Actions\ExportAction;
 use Filament\Notifications\Notification;
+use Filament\Tables\Actions\ExportBulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -85,7 +88,17 @@ class OrderResource extends Resource
                                             ->tel()
                                             ->nullable(),
                                     ]),
-                                Select::make('payment_method')
+                                    Select::make('type') 
+                                    ->label('Tipe Pesanan')
+                                    ->options([
+                                        'dine-in' => 'Dine-In',
+                                        'takeaway' => 'Takeaway',
+                                    ])
+                                    ->native(false)
+                                    ->default('dine-in')
+                                    ->selectablePlaceholder(false)
+                                    ->required(),
+                                    Select::make('payment_method')
                                     ->options([
                                         'cash' => 'Cash',
                                         'qris' => 'Qris',
@@ -235,7 +248,8 @@ class OrderResource extends Resource
                 TextColumn::make('id')
                     ->label('Nomor Pesanan')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('customer.name')
                     ->label('Pelanggan')
                     ->searchable()
@@ -257,6 +271,14 @@ class OrderResource extends Resource
                     })
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('type')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'dine-in' => 'warning',
+                        'takeaway' => 'success',
+                    })
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('total_price')
                     ->label('Total Harga')
                     ->money('IDR')
@@ -264,7 +286,8 @@ class OrderResource extends Resource
                 TextColumn::make('paid_at')
                     ->label('Dibayar Pada')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -278,8 +301,9 @@ class OrderResource extends Resource
                     'completed' => 'Completed',
                     'cancelled' => 'Cancelled',
                 ])
-                ->default('pending'), // Opsional: default filter
+                
             ])
+            
             ->actions([
                 Actions\ViewAction::make(),
                 Actions\EditAction::make(),
@@ -303,6 +327,11 @@ class OrderResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+                ExportBulkAction::make()->exporter(OrderExporter::class)
+            ])
+             ->headerActions([
+                ExportAction::make()->exporter(OrderExporter::class)
+                    
             ]);
     }
 

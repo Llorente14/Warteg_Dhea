@@ -6,11 +6,43 @@
 
             <!-- Order Items -->
             <div class="space-y-4 mb-6">
-                @foreach($cart as $item)
-                    <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                @foreach($cart as $menuId => $item)
+                    <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg relative">
+                        <!-- Delete Button (X) -->
+                        <button 
+                            wire:click="removeItem({{ $menuId }})" 
+                            class="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+
+                        <!-- Item Details -->
                         <div class="flex-1">
                             <h3 class="font-semibold">{{ $item['name'] }}</h3>
-                            <p class="text-gray-600">{{ $item['quantity'] }} x Rp {{ number_format($item['price'], 0, ',', '.') }}</p>
+                            <p class="text-gray-600">Rp {{ number_format($item['price'], 0, ',', '.') }}</p>
+                        </div>
+
+                        <!-- Quantity Controls -->
+                        <div class="flex items-center gap-2">
+                            <button 
+                                wire:click="decrementQuantity({{ $menuId }})"
+                                wire:loading.attr="disabled"
+                                wire:target="decrementQuantity({{ $menuId }})"
+                                class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-full transition-colors"
+                            >
+                                <span class="text-xl">−</span>
+                            </button>
+                            <span class="w-8 text-center font-medium">{{ $item['quantity'] }}</span>
+                            <button 
+                                wire:click="incrementQuantity({{ $menuId }})"
+                                wire:loading.attr="disabled"
+                                wire:target="incrementQuantity({{ $menuId }})"
+                                class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-full transition-colors"
+                            >
+                                <span class="text-xl">+</span>
+                            </button>
                         </div>
                     </div>
                 @endforeach
